@@ -2,6 +2,7 @@ using Hayat.API.Helper;
 using Hayat.API.Infrastructure;
 using Hayat.BLL.Helper;
 using Hayat.DAL.Helper;
+using System.Text.Json.Serialization;
 
 namespace Hayat.API
 {
@@ -16,7 +17,7 @@ namespace Hayat.API
             builder.Services.AddBllDependencies(builder.Configuration);
             builder.Services.AddDalDependencies(builder.Configuration);
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(op=>op.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
             var app = builder.Build();
 
@@ -27,8 +28,9 @@ namespace Hayat.API
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-                await app.ApplyDevelopmentDatabaseSetupAsync();
+                //await app.ApplyDevelopmentDatabaseSetupAsync();
             }
+            app.UseCors("AllowAll");
 
             app.UseHttpsRedirection();
 
