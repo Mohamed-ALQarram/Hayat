@@ -1,5 +1,3 @@
-using System;
-
 namespace Hayat.DAL.Entities
 {
     public class VisitsHistory
@@ -8,8 +6,9 @@ namespace Hayat.DAL.Entities
         public DateTime CreatedAt { get; set; }
         public string PatientComplaint { get; set; } = string.Empty;
         public string Diagnosis { get; set; } = string.Empty;
-        public string Notes { get; set; } = string.Empty;
+        public string? Notes { get; set; } 
 
+        public ICollection<Prescription>? Prescriptions { get; set; } = new List<Prescription>();
         public Guid PatientId { get; set; }
         public virtual Patient Patient { get; set; } = null!;
 

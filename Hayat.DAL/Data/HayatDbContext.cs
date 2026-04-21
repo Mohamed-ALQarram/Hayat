@@ -17,7 +17,8 @@ namespace Hayat.DAL.Data
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
-        public DbSet<VisitsHistory> MedicalHistories { get; set; }
+        public DbSet<VisitsHistory> VisitsHistories { get; set; }
+        public DbSet<Prescription> Prescriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
