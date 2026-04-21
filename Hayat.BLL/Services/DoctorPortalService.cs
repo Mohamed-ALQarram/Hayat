@@ -33,7 +33,8 @@ namespace Hayat.BLL.Services
                     Status = appointment.Status.ToString(),
                     PatientId = appointment.PatientId,
                     PatientName = appointment.Patient.FullName,
-                    NationalId = appointment.Patient.NationalId,
+                    Gender = appointment.Patient.Gender,
+                    Age = DateTime.Now.Year - appointment.Patient.DateOfBirth.Year,
                     Phone = appointment.Patient.Phone,
                     ClinicId = appointment.ClinicId,
                     ClinicName = appointment.Clinic.ClinicName
@@ -54,7 +55,11 @@ namespace Hayat.BLL.Services
                     DoctorName = history.Doctor.FullName,
                     Complaint = history.PatientComplaint,
                     Diagnosis = history.Diagnosis,
-                    Notes = history.Notes
+                    Notes = history.Notes,
+                    Prescriptions = history.Prescriptions?
+                    .Select(p=> 
+                    new PrescriptionDto(p.DrugName, p.Dosage, p.Frequency,p.Duration, p.Instructions))
+                    .ToList(),
                 })
                 .ToList();
         }
