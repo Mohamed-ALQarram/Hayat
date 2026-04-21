@@ -96,5 +96,32 @@ namespace Hayat.BLL.Services
             await unitOfWork.SaveChangesAsync(cancellationToken);
             return "History saved successfully";
         }
+
+        public async Task<UpdateAppointmentStatusResponseDto> UpdateAppointmentStatusAsync(int appointmentId, UpdateAppointmentStatusRequestDto request, CancellationToken cancellationToken = default)
+        {
+            var appointment = await _appointmentRepository.GetByIdAsync(appointmentId, cancellationToken);
+
+            if (appointment == null)
+            {
+                throw new Exceptions.EntityNotFoundException("Appointment not found.");
+            }
+
+            if (request.Status == AppointmentStatus.Scheduled)
+            {
+                throw new Exceptions.BusinessRuleException("Doctor cannot move appointment status back to Scheduled.");
+            }
+
+            appointment.Status = request.Status;
+
+            _appointmentRepository.Update(appointment);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return new UpdateAppointmentStatusResponseDto
+            {
+                AppointmentId = appointment.AppointmentId,
+                Status = appointment.Status,
+                Updated = true
+            };
+        }
     }
 }

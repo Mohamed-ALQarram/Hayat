@@ -57,5 +57,12 @@ namespace Hayat.API.Controllers
                 visitHistoryRequest.Notes, visitHistoryRequest.prescriptions, cancellationToken);
             return Ok(result);
         }
+
+        [HttpPatch("appointments/{appointmentId:int}/status")]
+        public async Task<ActionResult<UpdateAppointmentStatusResponseDto>> UpdateStatus(int appointmentId, [FromBody] UpdateAppointmentStatusRequestDto request, CancellationToken cancellationToken)
+        {
+            var response = await _doctorPortalService.UpdateAppointmentStatusAsync(appointmentId, request, cancellationToken);
+            return Ok(response);
+        }
     }
 }

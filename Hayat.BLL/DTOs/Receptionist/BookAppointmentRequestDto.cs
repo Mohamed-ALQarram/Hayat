@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Hayat.BLL.DTOs.Receptionist
 {
-    public class QuickBookAppointmentRequestDto
+    public class BookAppointmentRequestDto
     {
         [Required]
         public Guid PatientId { get; set; }

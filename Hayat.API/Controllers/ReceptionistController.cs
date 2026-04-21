@@ -48,29 +48,48 @@ namespace Hayat.API.Controllers
             return Ok(clinics);
         }
 
-        [HttpPost("appointments/quick-book")]
-        public async Task<ActionResult<AppointmentSummaryDto>> QuickBook([FromBody] QuickBookAppointmentRequestDto request, CancellationToken cancellationToken)
+
+        [HttpPost("patients")]
+        public async Task<ActionResult<RegisterPatientResponseDto>> RegisterPatient([FromBody] RegisterPatientRequestDto request, CancellationToken cancellationToken)
+        {
+            var patient = await _receptionistPortalService.RegisterPatientAsync(request, cancellationToken);
+            return Ok(patient);
+        }
+
+        [HttpPost("appointments/book")]
+        public async Task<ActionResult<AppointmentSummaryDto>> Book([FromBody] BookAppointmentRequestDto request, CancellationToken cancellationToken)
         {
             if (!User.TryGetBranchId(out var branchId))
             {
                 return Forbid();
             }
 
-            var appointment = await _receptionistPortalService.QuickBookAsync(branchId, request, cancellationToken);
+            var appointment = await _receptionistPortalService.BookAppointmentAsync(branchId, request, cancellationToken);
             return Ok(appointment);
         }
 
         [HttpGet("appointments/today")]
-        public async Task<ActionResult<IReadOnlyList<AppointmentSummaryDto>>> GetTodayAppointments([FromQuery] DateOnly? date, CancellationToken cancellationToken)
+        public async Task<ActionResult<TodayAppointmentsResponseDto>> GetTodayAppointments([FromQuery] TodayAppointmentsQueryDto request, CancellationToken cancellationToken)
         {
             if (!User.TryGetBranchId(out var branchId))
             {
                 return Forbid();
             }
 
-            var targetDate = date ?? DateOnly.FromDateTime(DateTime.Today);
-            var appointments = await _receptionistPortalService.GetAppointmentsForDateAsync(branchId, targetDate, cancellationToken);
+            var appointments = await _receptionistPortalService.GetTodayAppointmentsAsync(branchId, request, cancellationToken);
             return Ok(appointments);
+        }
+
+        [HttpPatch("appointments/{appointmentId:int}/status")]
+        public async Task<ActionResult<AppointmentSummaryDto>> UpdateAppointmentStatus(int appointmentId, [FromBody] UpdateReceptionAppointmentStatusRequestDto request, CancellationToken cancellationToken)
+        {
+            if (!User.TryGetBranchId(out var branchId))
+            {
+                return Forbid();
+            }
+
+            var appointment = await _receptionistPortalService.UpdateAppointmentStatusAsync(branchId, appointmentId, request, cancellationToken);
+            return Ok(appointment);
         }
     }
 }
