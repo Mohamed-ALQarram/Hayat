@@ -1,7 +1,9 @@
 using Hayat.BLL.DTOs.Doctor;
 using Hayat.BLL.Interfaces;
+using Hayat.DAL.Entities;
 using Hayat.DAL.Entities.Enums;
 using Hayat.DAL.Interfaces;
+using static Azure.Core.HttpHeader;
 
 namespace Hayat.BLL.Services
 {
@@ -9,13 +11,19 @@ namespace Hayat.BLL.Services
     {
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IVisitsHistoryRepository _visitsHistoryRepository;
+        private readonly IGenericRepository<VisitsHistory> visitHistoryRepo;
+        private readonly IUnitOfWork unitOfWork;
 
         public DoctorPortalService(
             IAppointmentRepository appointmentRepository,
-            IVisitsHistoryRepository visitsHistoryRepository)
+            IVisitsHistoryRepository visitsHistoryRepository,
+            IGenericRepository<VisitsHistory> VisitHistoryRepo,
+            IUnitOfWork unitOfWork)
         {
             _appointmentRepository = appointmentRepository;
             _visitsHistoryRepository = visitsHistoryRepository;
+            visitHistoryRepo = VisitHistoryRepo;
+            this.unitOfWork = unitOfWork;
         }
 
         public async Task<IReadOnlyList<DoctorQueueItemDto>> GetQueueAsync(Guid doctorId, DateOnly date, CancellationToken cancellationToken = default)
@@ -62,6 +70,31 @@ namespace Hayat.BLL.Services
                     .ToList(),
                 })
                 .ToList();
+        }
+
+        public async Task<string> WriteVisitHistory(Guid patientId, Guid doctorId, string patientComplaint, string diagnosis, string? notes,
+            List<PrescriptionDto>? prescriptions,
+            CancellationToken cancellationToken)
+        {
+            List<Prescription> prescriptionList = null;
+            if(prescriptions is not null)
+            {
+                prescriptionList = (prescriptions.Select(p=> 
+                new Prescription { Dosage= p.Dosage, DrugName = p.DrugName, Duration = p.Duration, Frequency= p.Frequency, Instructions = p.Instructions}).ToList());
+            }
+
+            var history = new VisitsHistory
+            {
+                PatientId = patientId,
+                DoctorId = doctorId,
+                PatientComplaint = patientComplaint,
+                Diagnosis = diagnosis,
+                Notes = notes,
+                Prescriptions = prescriptionList
+            };
+            await visitHistoryRepo.AddAsync(history);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
+            return "History saved successfully";
         }
     }
 }

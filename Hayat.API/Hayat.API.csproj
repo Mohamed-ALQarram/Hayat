@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Hayat.BLL\Hayat.BLL.csproj" />
   </ItemGroup>
 
