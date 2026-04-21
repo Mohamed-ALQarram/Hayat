@@ -34,6 +34,8 @@ namespace Hayat.DAL.Helper
             services.AddScoped<IPatientRepository, PatientRepository>();
             services.AddScoped<IAppointmentRepository, AppointmentRepository>();
             services.AddScoped<IVisitsHistoryRepository, VisitsHistoryRepository>();
+            services.AddScoped<IDoctorRepository, DoctorRepository>();
+            services.AddScoped<IClinicRepository, ClinicRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;

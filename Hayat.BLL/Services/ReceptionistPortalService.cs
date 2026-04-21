@@ -13,26 +13,26 @@ namespace Hayat.BLL.Services
     {
         private readonly IPatientRepository _patientRepository;
         private readonly IAppointmentRepository _appointmentRepository;
-        private readonly IGenericRepository<Clinic> _clinicRepository;
+        private readonly IClinicRepository _clinicRepository;
         private readonly IGenericRepository<Patient> _patientReadRepository;
+        private readonly IDoctorRepository _doctorRepository;
         private readonly IUnitOfWork _unitOfWork;
-
         private readonly IGenericRepository<ClinicSchedule> _clinicScheduleRepository;
-        private readonly IGenericRepository<Doctor> _doctorRepository;
 
         public ReceptionistPortalService(
             IPatientRepository patientRepository,
             IAppointmentRepository appointmentRepository,
-            IGenericRepository<Clinic> clinicRepository,
+            IClinicRepository clinicRepository,
             IGenericRepository<Patient> patientReadRepository,
+            IDoctorRepository doctorRepository,
             IUnitOfWork unitOfWork,
-            IGenericRepository<ClinicSchedule> clinicScheduleRepository,
-            IGenericRepository<Doctor> doctorRepository)
+            IGenericRepository<ClinicSchedule> clinicScheduleRepository)
         {
             _patientRepository = patientRepository;
             _appointmentRepository = appointmentRepository;
             _clinicRepository = clinicRepository;
             _patientReadRepository = patientReadRepository;
+            _doctorRepository = doctorRepository;
             _unitOfWork = unitOfWork;
             _clinicScheduleRepository = clinicScheduleRepository;
             _doctorRepository = doctorRepository;
@@ -53,6 +53,49 @@ namespace Hayat.BLL.Services
                     DateOfBirth = patient.DateOfBirth
                 })
                 .ToList();
+        }
+
+
+        public async Task<IReadOnlyList<DoctorWithClinicsResponseDto>> GetDoctorsWithClinicsAsync(string? searchTerm, CancellationToken cancellationToken = default)
+        {
+            var doctors = await _doctorRepository.GetDoctorsWithClinicsAsync(searchTerm, cancellationToken);
+            
+            return doctors.Select(d => new DoctorWithClinicsResponseDto
+            {
+                Id = d.DoctorId,
+                FullName = d.FullName,
+                Specialization = d.Specialty,
+                WorkingClinics = d.ClinicSchedules.Select(cs => new ClinicWorkingHoursDto
+                {
+                    ClinicId = cs.ClinicId,
+                    ClinicName = cs.Clinic.ClinicName,
+                    WorkingDay = cs.DayOfWeek.ToString(),
+                    WorkingHours = $"{cs.StartTime:hh\\:mm} - {cs.EndTime:hh\\:mm}"
+                }).ToList()
+            }).ToList();
+        }
+        public async Task<IReadOnlyList<string>> GetDoctorSpecializationsAsync(CancellationToken cancellationToken = default)
+        {
+            return await _doctorRepository.GetDoctorSpecializationsAsync(cancellationToken);
+        }
+        public async Task<IReadOnlyList<ClinicWithSchedulesDto>> GetClinicsWithSchedulesAsync(CancellationToken cancellationToken = default)
+        {
+            var clinics = await _clinicRepository.GetClinicsWithSchedulesAsync(cancellationToken);
+            
+            return clinics.Select(c => new ClinicWithSchedulesDto
+            {
+                ClinicId = c.ClinicId,
+                ClinicName = c.ClinicName,
+                Schedules = c.ClinicSchedules
+                    .GroupBy(cs => cs.DayOfWeek)
+                    .Select(g => new ClinicScheduleDto
+                    {
+                        DayOfWeek = g.Key,
+                        StartTime = g.Min(cs => cs.StartTime),
+                        EndTime = g.Max(cs => cs.EndTime)
+                    })
+                    .ToList()
+            }).ToList();
         }
 
         public async Task<RegisterPatientResponseDto> RegisterPatientAsync(RegisterPatientRequestDto request, CancellationToken cancellationToken = default)
@@ -330,4 +373,5 @@ namespace Hayat.BLL.Services
             };
         }
     }
+
 }

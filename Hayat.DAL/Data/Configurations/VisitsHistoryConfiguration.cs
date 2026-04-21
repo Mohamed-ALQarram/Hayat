@@ -4,6 +4,26 @@ using Hayat.DAL.Entities;
 
 namespace Hayat.DAL.Data.Configurations
 {
+    public class PrescriptionConfiguration : IEntityTypeConfiguration<Prescription>
+    {
+        public void Configure(EntityTypeBuilder<Prescription> builder)
+        {
+            builder.HasKey(p => p.Id);
+            builder.Property(p => p.Id).HasValueGenerator<UuidV7Generator>();
+            builder.Property(p=>p.DrugName).HasMaxLength(100).IsRequired();
+            builder.Property(p => p.Dosage).HasMaxLength(25).IsRequired();
+            builder.Property(p => p.Frequency).HasMaxLength(25).IsRequired();
+            builder.Property(p=>p.Duration).HasMaxLength(25).IsRequired();
+            builder.Property(p=>p.Instructions).HasMaxLength(250);
+
+            builder.HasOne(p=>p.visitsHistory)
+                .WithMany(x=>x.Prescriptions)
+                .HasForeignKey(p => p.VisitHistoryId);
+
+            builder.HasIndex(p => p.VisitHistoryId);
+                
+        }
+    }
     public class VisitsHistoryConfiguration : IEntityTypeConfiguration<VisitsHistory>
     {
         public void Configure(EntityTypeBuilder<VisitsHistory> builder)

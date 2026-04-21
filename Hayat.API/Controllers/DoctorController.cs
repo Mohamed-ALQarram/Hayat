@@ -1,3 +1,4 @@
+using Hayat.API.DTOs;
 using Hayat.API.Infrastructure;
 using Hayat.BLL.Constants;
 using Hayat.BLL.DTOs.Doctor;
@@ -37,6 +38,24 @@ namespace Hayat.API.Controllers
         {
             var timeline = await _doctorPortalService.GetMedicalHistoryTimelineAsync(patientId, cancellationToken);
             return Ok(timeline);
+        }
+
+        [HttpPost("patients/{patientId:guid}/medical-history")]
+        public async Task<ActionResult> WriteVisitHistory(Guid patientId, 
+            WriteVisitHistoryRequest visitHistoryRequest,
+            CancellationToken cancellationToken)
+        {
+            if (!User.TryGetDoctorId(out var doctorId))
+            {
+                return Forbid();
+            }
+
+            var result = await _doctorPortalService.WriteVisitHistory(patientId,
+                doctorId,
+                visitHistoryRequest.PatientComplaint,
+                visitHistoryRequest.Diagnosis,
+                visitHistoryRequest.Notes, visitHistoryRequest.prescriptions, cancellationToken);
+            return Ok(result);
         }
 
         [HttpPatch("appointments/{appointmentId:int}/status")]

@@ -27,6 +27,28 @@ namespace Hayat.API.Controllers
             return Ok(results);
         }
 
+        [HttpGet("doctors")]
+        public async Task<ActionResult<IReadOnlyList<DoctorWithClinicsResponseDto>>> GetDoctors([FromQuery] string? search, CancellationToken cancellationToken)
+        {
+            var doctors = await _receptionistPortalService.GetDoctorsWithClinicsAsync(search, cancellationToken);
+            return Ok(doctors);
+        }
+
+        [HttpGet("doctors/specializations")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetDoctorSpecializations(CancellationToken cancellationToken)
+        {
+            var specs = await _receptionistPortalService.GetDoctorSpecializationsAsync(cancellationToken);
+            return Ok(specs);
+        }
+
+        [HttpGet("clinics-with-schedules")]
+        public async Task<ActionResult<IReadOnlyList<ClinicWithSchedulesDto>>> GetClinicsWithSchedules(CancellationToken cancellationToken)
+        {
+            var clinics = await _receptionistPortalService.GetClinicsWithSchedulesAsync(cancellationToken);
+            return Ok(clinics);
+        }
+
+
         [HttpPost("patients")]
         public async Task<ActionResult<RegisterPatientResponseDto>> RegisterPatient([FromBody] RegisterPatientRequestDto request, CancellationToken cancellationToken)
         {
