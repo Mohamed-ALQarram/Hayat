@@ -24,6 +24,7 @@ namespace Hayat.DAL.Repositories
 
             return await Query()
                 .Where(patient =>
+                    EF.Functions.Like(patient.PatientId.ToString(), searchPattern) ||
                     EF.Functions.Like(patient.FullName, searchPattern) ||
                     EF.Functions.Like(patient.NationalId, searchPattern) ||
                     EF.Functions.Like(patient.Phone, searchPattern))

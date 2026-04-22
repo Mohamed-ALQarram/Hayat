@@ -28,6 +28,7 @@ namespace Hayat.DAL.Repositories
                 .Include(appointment => appointment.Patient)
                 .Include(appointment => appointment.Clinic)
                 .Where(appointment =>
+                    (appointment.Status == AppointmentStatus.Waiting || appointment.Status == AppointmentStatus.InProgress)&&
                     appointment.AppointmentDate >= start &&
                     appointment.AppointmentDate < end &&
                     clinicIds.Contains(appointment.ClinicId))
